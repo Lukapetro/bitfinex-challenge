@@ -4,7 +4,7 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 
-export const Landing = () => {
+export const Home = () => {
   const count = useSelector((state: RootState) => state.my.value);
   const dispatch = useDispatch();
 
