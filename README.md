@@ -26,4 +26,4 @@ This is a coding challenge made for (bitfinex)[https://www.bitfinex.com/]
 
 ## Contact
 
-Luka Petrovic - [@lukapetro](https://twitter.com/@lukapetro) - lucapetro93@gmail.com
+Luka Petrovic - [@lukapetro](https://www.linkedin.com/in/lukapetro/) - lucapetro93@gmail.com
