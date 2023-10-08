@@ -1,6 +1,6 @@
 import { useOrderBook } from "@/hooks/use-order-book";
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
@@ -72,15 +72,30 @@ export const OrderBook: React.FC<OrderBookProps> = ({ ticker }) => {
     }
   };
 
+  const getPrecisionLevel = (precisionString: string) => {
+    if (
+      typeof precisionString === "string" &&
+      !isNaN(Number(precisionString[1]))
+    ) {
+      return parseInt(precisionString[1]);
+    }
+    return null;
+  };
+
   const isPrecisionIncrementDisabled = useMemo(() => {
-    const precisionNumber = parseInt(precision[1]);
-    return precisionNumber === 4;
+    const precisionLevel = getPrecisionLevel(precision);
+    return precisionLevel === null || precisionLevel === 4;
   }, [precision]);
 
   const isPrecisionDecrementDisabled = useMemo(() => {
-    const precisionNumber = parseInt(precision[1]);
-    return precisionNumber === 0;
+    const precisionLevel = getPrecisionLevel(precision);
+    return precisionLevel === null || precisionLevel === 0;
   }, [precision]);
+
+  const handleToggleConnection = useCallback(() => {
+    toggleConnection();
+    setPrecision("P0" as Precision);
+  }, [toggleConnection]);
 
   return (
     <>
@@ -89,29 +104,27 @@ export const OrderBook: React.FC<OrderBookProps> = ({ ticker }) => {
         {isConnected && (
           <View style={styles.precisionControl}>
             <TouchableOpacity
-              style={[
-                styles.precisionButton,
-                isPrecisionDecrementDisabled && styles.precisionButtonDisabled,
-              ]}
+              style={[styles.precisionButton]}
               onPress={decreasePrecision}
               disabled={isPrecisionDecrementDisabled}
             >
-              <Text style={styles.buttonText}>-</Text>
+              <Text style={styles.precisionButtonText}>-</Text>
             </TouchableOpacity>
+            <Text>{precision}</Text>
             <TouchableOpacity
-              style={[
-                styles.precisionButton,
-                isPrecisionIncrementDisabled && styles.precisionButtonDisabled,
-              ]}
+              style={[styles.precisionButton]}
               onPress={increasePrecision}
               disabled={isPrecisionIncrementDisabled}
             >
-              <Text style={styles.buttonText}>+</Text>
+              <Text style={styles.precisionButtonText}>+</Text>
             </TouchableOpacity>
           </View>
         )}
 
-        <TouchableOpacity style={styles.button} onPress={toggleConnection}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleToggleConnection}
+        >
           <Text style={styles.buttonText}>
             {isConnected ? "Disconnect" : "Connect"}
           </Text>
@@ -195,17 +208,23 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   precisionButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginHorizontal: 10,
+    width: 30,
+    height: 30,
+    borderRadius: 30,
+    marginHorizontal: 8,
+    borderWidth: 2,
+    borderColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonTextDisabled: {
     color: "#dddddd",
   },
   precisionButtonDisabled: {
-    backgroundColor: "#007bff",
     opacity: 0.5,
+  },
+  precisionButtonText: {
+    fontSize: 14,
+    color: "#333",
   },
 });
