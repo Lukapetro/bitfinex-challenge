@@ -71,7 +71,11 @@ export const CryptoDetail: React.FC<Props> = ({ route }) => {
   if (!tickerData) return <Spinner />;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      contentInset={{ bottom: 40 }}
+      style={styles.scrollView}
+    >
       {tickerData ? (
         <>
           <Text style={styles.header}>DETAILS</Text>
@@ -125,6 +129,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 16,
+    paddingBottom: 20,
   },
   header: {
     fontSize: 14,
@@ -151,5 +156,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: "center",
     marginTop: 20,
+  },
+  scrollView: {
+    backgroundColor: "#fff",
   },
 });
