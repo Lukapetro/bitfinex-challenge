@@ -1,28 +1,40 @@
 import { RootState, clearOrderBook, updateOrderBook } from "@/redux";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-export const useOrderBook = (symbol: string) => {
+import { WS_URL } from "@env";
+import { Precision } from "@/screens/crypto-detail/order-book";
+
+export const useOrderBook = (symbol: string, precision: Precision = "P0") => {
   const dispatch = useDispatch();
   const orderBook = useSelector((state: RootState) => state.orderBook.data);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isConnected, setIsConnected] = useState(false);
   const [ws, setWs] = useState<WebSocket | null>(null);
 
-  const connectWs = () => {
-    const websocket = new WebSocket("wss://api-pub.bitfinex.com/ws/2");
+  const connectWs = useCallback(() => {
+    if (ws) {
+      ws.close();
+    }
+
+    const websocket = new WebSocket(WS_URL);
 
     websocket.onopen = () => {
+      setIsLoading(true);
+
       const msg = JSON.stringify({
         event: "subscribe",
         channel: "book",
         symbol: symbol,
-        frequency: "F1",
+        prec: precision,
+        freq: "F1",
       });
       websocket.send(msg);
     };
 
     websocket.onmessage = (event: MessageEvent) => {
+      setIsLoading(false);
       const response = JSON.parse(event.data);
 
       if (Array.isArray(response)) {
@@ -32,12 +44,14 @@ export const useOrderBook = (symbol: string) => {
     };
 
     setWs(websocket);
-  };
+  }, [symbol, dispatch]);
 
-  const disconnectWs = () => {
-    ws?.close();
-    setWs(null);
-  };
+  const disconnectWs = useCallback(() => {
+    if (ws) {
+      ws.close();
+      setWs(null);
+    }
+  }, [ws]);
 
   const toggleConnection = () => {
     if (isConnected) {
@@ -50,10 +64,10 @@ export const useOrderBook = (symbol: string) => {
 
   useEffect(() => {
     return () => {
-      dispatch(clearOrderBook());
       disconnectWs();
+      dispatch(clearOrderBook());
     };
-  }, []);
+  }, [dispatch, disconnectWs]);
 
-  return { orderBook, isConnected, toggleConnection };
+  return { orderBook, isConnected, toggleConnection, isLoading };
 };

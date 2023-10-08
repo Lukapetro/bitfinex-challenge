@@ -1,3 +1,5 @@
+import { API_URL } from "@env";
+
 import {
   BaseQueryFn,
   FetchArgs,
@@ -7,7 +9,7 @@ import {
 } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "https://api-pub.bitfinex.com/v2/",
+  baseUrl: API_URL,
 });
 
 const baseQueryWithInterceptor: BaseQueryFn<
