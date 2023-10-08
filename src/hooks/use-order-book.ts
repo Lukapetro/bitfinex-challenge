@@ -9,7 +9,6 @@ export const useOrderBook = (symbol: string, precision: Precision = "P0") => {
   const dispatch = useDispatch();
   const orderBook = useSelector((state: RootState) => state.orderBook.data);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isConnected, setIsConnected] = useState(false);
   const [ws, setWs] = useState<WebSocket | null>(null);
 
@@ -21,8 +20,6 @@ export const useOrderBook = (symbol: string, precision: Precision = "P0") => {
     const websocket = new WebSocket(WS_URL);
 
     websocket.onopen = () => {
-      setIsLoading(true);
-
       const msg = JSON.stringify({
         event: "subscribe",
         channel: "book",
@@ -34,7 +31,6 @@ export const useOrderBook = (symbol: string, precision: Precision = "P0") => {
     };
 
     websocket.onmessage = (event: MessageEvent) => {
-      setIsLoading(false);
       const response = JSON.parse(event.data);
 
       if (Array.isArray(response)) {
@@ -69,5 +65,5 @@ export const useOrderBook = (symbol: string, precision: Precision = "P0") => {
     };
   }, [dispatch, disconnectWs]);
 
-  return { orderBook, isConnected, toggleConnection, isLoading };
+  return { orderBook, isConnected, toggleConnection };
 };
